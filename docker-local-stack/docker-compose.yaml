@@ -1,0 +1,34 @@
+version: "3.7"
+
+services:
+  mongo-server-1:
+    image: mongo:latest
+    container_name: mongo-server-1
+    command: --port 28051 --replSet rs-shard-1
+    ports:
+      - 28051:28051
+    volumes:
+      - mongo-server-1-store:/data/db
+    networks:
+      - mongonetwork
+
+  mongo-server-1-repl:
+    image: mongo:latest
+    container_name: mongo-server-1-repl
+    command: --port 28052 --replSet rs-shard-1
+    ports:
+      - 28052:28052
+    volumes:
+      - mongo-server-repl-1-store:/data/db
+    networks:
+      - mongonetwork
+
+networks:
+  mongonetwork:
+
+volumes:
+  mongo-server-1-store:
+    driver: local
+  mongo-server-repl-1-store:
+    driver: local
+
