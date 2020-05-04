@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <PackageVersion>0.0.1</PackageVersion>
+    <Title>ShieldTech.MongoDbMigrations</Title>
+    <Authors>Adriano Oliveira</Authors>
+    <Copyright>MIT</Copyright>
+    <PackageProjectUrl>https://github.com/drprado2/ShieldTech.MongoDbMigrations</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/drprado2/ShieldTech.MongoDbMigrations/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/drprado2/ShieldTech.MongoDbMigrations</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
