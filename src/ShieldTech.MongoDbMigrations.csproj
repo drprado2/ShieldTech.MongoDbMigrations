@@ -9,6 +9,7 @@
     <PackageProjectUrl>https://github.com/drprado2/ShieldTech.MongoDbMigrations</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/drprado2/ShieldTech.MongoDbMigrations/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/drprado2/ShieldTech.MongoDbMigrations</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
