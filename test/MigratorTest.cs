@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
+using NSubstitute;
 using ShieldTech.MongoDbMigrations.Scripts;
 using ShieldTech.MongoDbMigrations.Tests.Entities;
 using ShieldTech.MongoDbMigrations.Tests.Scripts;
@@ -21,9 +23,10 @@ namespace ShieldTech.MongoDbMigrations.Tests
         [Fact]
         public async Task Should_apply_scripts_and_revert()
         {
+            var logger = Substitute.For<ILogger>();
             var expectedScript1 = new V1();
             var expectedScript2 = new V2();
-            var migrator = new Migrator(MongoDbFixture.ConnectionString, _mongoDbFixture.DataBaseName);
+            var migrator = new Migrator(MongoDbFixture.ConnectionString, _mongoDbFixture.DataBaseName, logger);
             var scriptCollection = _mongoDbFixture.MongoDatabase.GetCollection<ScriptEntity>(ScriptEntity.CollectionName);
             var customerCollection = _mongoDbFixture.MongoDatabase.GetCollection<Customer>(nameof(Customer));
             var productCollection = _mongoDbFixture.MongoDatabase.GetCollection<Product>(nameof(Product));

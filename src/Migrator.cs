@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using ShieldTech.MongoDbMigrations.Scripts;
 
@@ -12,6 +13,7 @@ namespace ShieldTech.MongoDbMigrations
     /// </summary>
     public class Migrator
     {
+        private readonly ILogger _logger;
         private List<ScriptBase> _scripts = new List<ScriptBase>();
         private readonly IMongoDatabase _mongoDatabase;
         private readonly IMongoCollection<ScriptEntity> _collection;
@@ -20,8 +22,9 @@ namespace ShieldTech.MongoDbMigrations
         /// </summary>
         /// <param name="mongoDbConnectionString">The mongoDB connection string</param>
         /// <param name="dataBaseName">The database you want to versionate, will be create one collection called _mongoDbMigrationsHistory</param>
-        public Migrator(string mongoDbConnectionString, string dataBaseName)
+        public Migrator(string mongoDbConnectionString, string dataBaseName, ILogger logger)
         {
+            _logger = logger;
             LoadScripts();
             new ScriptEntityMap();
             var client = new MongoClient(mongoDbConnectionString);
@@ -54,21 +57,24 @@ namespace ShieldTech.MongoDbMigrations
             var lastVersionScript = (await _collection.Find(FilterDefinition<ScriptEntity>.Empty)
                 .SortByDescending(x => x.SequenceVersion).FirstOrDefaultAsync())?.SequenceVersion ?? 0;
             
-            Console.WriteLine($"Beginning MongoDB script migrations");
+            _logger.LogInformation($"Beginning MongoDB script migrations");
             if (version > -1 && version < lastVersionScript)
                 await RevertToVersionAsync(version, lastVersionScript);
             else
                 await UpdateToVersionAsync(version, lastVersionScript);
-            Console.WriteLine("All scripts applied with succefull");
+            _logger.LogInformation("All scripts applied with succefull");
         }
 
         private async Task UpdateToVersionAsync(int version, int lastVersionScript)
         {
             foreach (var script in _scripts.Where(x => version == -1 || x.SequenceVersion <= version))
             {
-                Console.WriteLine($"Applying script {script.Name} version {script.SequenceVersion}");
+                _logger.LogInformation($"Applying script {script.Name} version {script.SequenceVersion}");
                 if (script.SequenceVersion <= lastVersionScript)
+                {
+                    _logger.LogInformation($"Script {script.Name} already been applied");
                     continue;
+                }
 
                 if (script.SequenceVersion > lastVersionScript + 1)
                     throw new ArgumentException($"The last applied script was {lastVersionScript} and the newest script is {script.SequenceVersion} the versions should be sequential");
@@ -80,26 +86,26 @@ namespace ShieldTech.MongoDbMigrations
                 var scriptEntity = new ScriptEntity(script.SequenceVersion, script.Name);
                 await _collection.InsertOneAsync(scriptEntity);
                 lastVersionScript++;
-                Console.WriteLine($"Script {script.Name} applied with succefull");
+                _logger.LogInformation($"Script {script.Name} applied with succefull");
             }
         }
         
         private async Task RevertToVersionAsync(int version, int lastVersionScript)
         {
-            Console.WriteLine($"Beginning revert MongoDB scripts migrations\n Total scripts to revert: {lastVersionScript - version}");
+            _logger.LogInformation($"Beginning revert MongoDB scripts migrations\n Total scripts to revert: {lastVersionScript - version}");
             while (version < lastVersionScript)
             {
                 var script = _scripts.First(x => x.SequenceVersion == lastVersionScript);
-                Console.WriteLine($"Reverting script {script.Name} version {script.SequenceVersion}");
+                _logger.LogInformation($"Reverting script {script.Name} version {script.SequenceVersion}");
                 var result = await script.RevertAsync(_mongoDatabase);
                 if (!result)
                     throw new Exception($"Fail on revert script {script.Name} aborting application");
 
                 await _collection.DeleteOneAsync(s => s.SequenceVersion == lastVersionScript);
                 lastVersionScript--;
-                Console.WriteLine($"Script {script.Name} reverted with succefull");
+                _logger.LogInformation($"Script {script.Name} reverted with succefull");
             }
-            Console.WriteLine($"All scripts reverted with succefull, current dataBase version {version}");
+            _logger.LogInformation($"All scripts reverted with succefull, current dataBase version {version}");
         }
     }
 }
