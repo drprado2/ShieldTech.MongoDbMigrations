@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
+using ShieldTech.MethodExtensions;
 using ShieldTech.MongoDbMigrations.Scripts;
 
 namespace ShieldTech.MongoDbMigrations
@@ -35,7 +37,7 @@ namespace ShieldTech.MongoDbMigrations
 
         private void LoadScripts()
         {
-            _scripts.AddRange(AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes())
+            _scripts.AddRange(Assembly.GetExecutingAssembly().GetTypesFromAssemblyAndReferenced()
                 .Where(x => x.IsSubclassOf(typeof(ScriptBase)) && !x.IsInterface && !x.IsAbstract)
                 .Select(x => (ScriptBase) Activator.CreateInstance(x))
                 .OrderBy(x => x.SequenceVersion)
