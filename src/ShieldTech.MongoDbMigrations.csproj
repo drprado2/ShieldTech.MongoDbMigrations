@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <PackageVersion>0.0.3</PackageVersion>
+    <PackageVersion>0.0.4</PackageVersion>
     <Title>ShieldTech.MongoDbMigrations</Title>
     <Authors>Adriano Oliveira</Authors>
     <Copyright>MIT</Copyright>
@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.10.3" />
-    <PackageReference Include="ShieldTech.MethodExtensions" Version="0.0.4" />
+    <PackageReference Include="ShieldTech.MethodExtensions" Version="0.0.7" />
   </ItemGroup>
 
 </Project>

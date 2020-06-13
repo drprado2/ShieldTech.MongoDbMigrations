@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using ShieldTech.MethodExtensions;
 using ShieldTech.MongoDbMigrations.Scripts;
+using AssemblyExtensions = ShieldTech.MethodExtensions.AssemblyExtensions;
 
 namespace ShieldTech.MongoDbMigrations
 {
@@ -37,7 +38,7 @@ namespace ShieldTech.MongoDbMigrations
 
         private void LoadScripts()
         {
-            _scripts.AddRange(Assembly.GetExecutingAssembly().GetTypesFromAssemblyAndReferenced()
+            _scripts.AddRange(AssemblyExtensions.SafeGetTypesFromDomainAssemblies()
                 .Where(x => x.IsSubclassOf(typeof(ScriptBase)) && !x.IsInterface && !x.IsAbstract)
                 .Select(x => (ScriptBase) Activator.CreateInstance(x))
                 .OrderBy(x => x.SequenceVersion)
